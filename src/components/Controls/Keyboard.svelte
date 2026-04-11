@@ -7,23 +7,30 @@
 	// TODO: Improve keyboardDisabled
 	import { keyboardDisabled } from '@sudoku/stores/keyboard';
 
-	function handleKeyButton(num) {
-		if (!$keyboardDisabled) {
-			if ($notes) {
-				if (num === 0) {
-					candidates.clear($cursor);
-				} else {
-					candidates.add($cursor, num);
-				}
-				userGrid.set($cursor, 0);
-			} else {
-				if ($candidates.hasOwnProperty($cursor.x + ',' + $cursor.y)) {
-					candidates.clear($cursor);
-				}
+	function hasCursor(cursorStore) {
+		return cursorStore.x !== null && cursorStore.y !== null;
+	}
 
-				userGrid.set($cursor, num);
+	function handleKeyButton(num) {
+		if ($keyboardDisabled) return;
+		if (!hasCursor($cursor)) return;
+
+		if ($notes) {
+			if (num === 0) {
+				candidates.clear($cursor);
+			} else {
+				candidates.add($cursor, num);
 			}
+
+			userGrid.set($cursor, 0);
+			return;
 		}
+
+		if ($candidates.hasOwnProperty($cursor.x + ',' + $cursor.y)) {
+			candidates.clear($cursor);
+		}
+
+		userGrid.set($cursor, num);
 	}
 
 	function handleKey(e) {
@@ -74,31 +81,38 @@
 	}
 </script>
 
-<svelte:window on:keydown={handleKey} /><!--on:beforeunload|preventDefault={e => e.returnValue = ''} />-->
+<svelte:window on:keydown={handleKey} />
 
 <div class="keyboard-grid">
-
 	{#each Array(10) as _, keyNum}
 		{#if keyNum === 9}
-			<button class="btn btn-key" disabled={$keyboardDisabled} title="Erase Field" on:click={() => handleKeyButton(0)}>
+			<button
+				class="btn btn-key"
+				disabled={$keyboardDisabled}
+				title="Erase Field"
+				on:click={() => handleKeyButton(0)}
+			>
 				<svg class="icon-outline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
 				</svg>
 			</button>
 		{:else}
-			<button class="btn btn-key" disabled={$keyboardDisabled} title="Insert {keyNum + 1}" on:click={() => handleKeyButton(keyNum + 1)}>
+			<button
+				class="btn btn-key"
+				disabled={$keyboardDisabled}
+				title="Insert {keyNum + 1}"
+				on:click={() => handleKeyButton(keyNum + 1)}
+			>
 				{keyNum + 1}
 			</button>
 		{/if}
 	{/each}
-
 </div>
 
 <style>
 	.keyboard-grid {
 		@apply grid grid-rows-2 grid-cols-5 gap-3;
 	}
-
 
 	.btn-key {
 		@apply py-4 px-0;

@@ -1,5 +1,5 @@
 
-import { printSudoku, solveSudoku } from '../sudoku.js';
+import { printSudoku, solveSudoku } from '@sudoku/sudoku';
 
 export class Sudoku {
   constructor(initialGrid, currentGrid = null) {
